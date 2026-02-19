@@ -14,6 +14,7 @@ resource "aws_iam_role_policy_attachment" "ecs_execution_policy" {
 ########################################
 # IAM Role for ECS Task to access other AWS resources (if needed)
 ########################################
+#fix
 
 # Example: If your ECS tasks need to access S3, DynamoDB, etc., you can create a custom policy
 resource "aws_iam_role_policy" "ecs_task_custom_policy" {
