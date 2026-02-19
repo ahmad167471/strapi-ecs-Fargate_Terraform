@@ -1,21 +1,35 @@
-resource "aws_iam_role" "ecs_task_execution_role" {
-  name = "ecsTaskExecutionRole-strapi"
+########################################
+# IAM Role for ECS Task (Existing)
+########################################
 
-  assume_role_policy = jsonencode({
+# No need to create a new role since your org provides ecs_fargate_taskRole
+# We just reference it in ECS task definitions
+
+# Optional: Attach policy if needed (skip if already attached)
+resource "aws_iam_role_policy_attachment" "ecs_execution_policy" {
+  role       = "ecs_fargate_taskRole"  # Existing role name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
+########################################
+# IAM Role for ECS Task to access other AWS resources (if needed)
+########################################
+
+# Example: If your ECS tasks need to access S3, DynamoDB, etc., you can create a custom policy
+resource "aws_iam_role_policy" "ecs_task_custom_policy" {
+  name   = "ecs-task-custom-policy-strapi"
+  role   = "ecs_fargate_taskRole"  # Existing role
+  policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
         Effect = "Allow"
-        Principal = {
-          Service = "ecs-tasks.amazonaws.com"
-        }
-        Action = "sts:AssumeRole"
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject"
+        ]
+        Resource = "arn:aws:s3:::your-bucket-name/*"
       }
     ]
   })
-}
-
-resource "aws_iam_role_policy_attachment" "ecs_execution_policy" {
-  role       = ecs_fargate_taskRole
-  policy_arn = "arn:aws:iam::811738710312:role/ecs_fargate_taskRole"
 }
