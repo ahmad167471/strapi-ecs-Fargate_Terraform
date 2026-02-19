@@ -47,11 +47,12 @@ jobs:
         run: |
           IMAGE_TAG=${GITHUB_SHA}
           IMAGE_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:${IMAGE_TAG}
-         
-          docker build -f app/Dockerfile -t $IMAGE_URI ./app
+
+          # Build Docker image using repo root as context
+          docker build -t $IMAGE_URI .
           docker push $IMAGE_URI
-           
-      # Install Terraform  Fixed
+
+      # Setup Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
@@ -69,7 +70,7 @@ jobs:
       - name: Terraform Apply
         run: |
           terraform -chdir=terraform apply -auto-approve \
-          -var="aws_region=${AWS_REGION}" \
-          -var="aws_account_id=${{ secrets.AWS_ACCOUNT_ID }}" \
-          -var="strapi_db_password=${{ secrets.STRAPI_DB_PASSWORD }}" \
-          -var="image_tag=${GITHUB_SHA}"
+            -var="aws_region=${AWS_REGION}" \
+            -var="aws_account_id=${{ secrets.AWS_ACCOUNT_ID }}" \
+            -var="strapi_db_password=${{ secrets.STRAPI_DB_PASSWORD }}" \
+            -var="image_tag=${GITHUB_SHA}"
