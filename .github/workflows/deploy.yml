@@ -15,7 +15,7 @@ jobs:
 
     env:
       AWS_REGION: us-east-1
-      ECR_REPOSITORY: strapi-ecs
+      ECR_REPOSITORY: strapi-ecs-ahmad
       ECS_CLUSTER: strapi-cluster
       ECS_SERVICE: strapi-service
 
@@ -39,8 +39,13 @@ jobs:
       # Ensure ECR repository exists
       - name: Ensure ECR repository exists
         run: |
-          aws ecr describe-repositories --repository-names $ECR_REPOSITORY --region $AWS_REGION || \
-          aws ecr create-repository --repository-name $ECR_REPOSITORY --region $AWS_REGION
+          aws ecr describe-repositories \
+            --repository-names $ECR_REPOSITORY \
+            --region $AWS_REGION || \
+          aws ecr create-repository \
+            --repository-name $ECR_REPOSITORY \
+            --image-scanning-configuration scanOnPush=true \
+            --region $AWS_REGION
 
       # Build & Push Docker Image
       - name: Build and push Docker image
@@ -48,7 +53,8 @@ jobs:
           IMAGE_TAG=${GITHUB_SHA}
           IMAGE_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:${IMAGE_TAG}
 
-          # Build Docker image using repo root as context
+          echo "Building image: $IMAGE_URI"
+
           docker build -t $IMAGE_URI .
           docker push $IMAGE_URI
 
