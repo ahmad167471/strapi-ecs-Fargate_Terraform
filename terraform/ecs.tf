@@ -1,24 +1,27 @@
-########################################
-# Security Group
-########################################
+##################################
+# Security Group for ECS
+##################################
 resource "aws_security_group" "ecs_sg" {
-  name        = "strapi-sg"
-  description = "Allow Strapi access"
-  vpc_id      = data.aws_vpc.default.id
+  name        = "strapi-ecs-sg"
+  description = "Allow HTTP for Strapi"
+  vpc_id      = aws_vpc.strapi_vpc.id
 
   ingress {
-    from_port   = 1337
-    to_port     = 1337
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    description      = "HTTP"
+    from_port        = 1337
+    to_port          = 1337
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
   }
 
   egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
   }
+
+  tags = { Name = "strapi-ecs-sg-ahmad" }
 }
 
 ########################################
