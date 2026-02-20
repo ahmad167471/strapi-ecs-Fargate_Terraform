@@ -11,7 +11,7 @@ resource "aws_ecs_cluster" "cluster" {
 resource "aws_security_group" "ecs_sg" {
   name        = "strapi-ecs-sg"
   description = "Allow HTTP for Strapi"
-  vpc_id      = aws_vpc.strapi_vpc.id
+  vpc_id      = aws_vpc.main.id  # updated to match new VPC
 
   ingress {
     description = "Strapi Port"
@@ -33,17 +33,17 @@ resource "aws_security_group" "ecs_sg" {
   }
 }
 
-########################################
+##################################
 # CloudWatch Logs
-########################################
+##################################
 resource "aws_cloudwatch_log_group" "ecs_logs" {
   name              = "/ecs/strapi/ahmad"
   retention_in_days = 7
 }
 
-########################################
+##################################
 # ECS Task Definition
-########################################
+##################################
 resource "aws_ecs_task_definition" "task" {
   family                   = "strapi-task-ahmad"
   requires_compatibilities = ["FARGATE"]
@@ -86,9 +86,9 @@ resource "aws_ecs_task_definition" "task" {
   ])
 }
 
-########################################
+##################################
 # ECS Service
-########################################
+##################################
 resource "aws_ecs_service" "service" {
   name            = "strapi-service-ahmad"
   cluster         = aws_ecs_cluster.cluster.id
