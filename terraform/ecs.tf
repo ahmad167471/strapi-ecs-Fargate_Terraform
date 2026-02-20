@@ -44,6 +44,7 @@ resource "aws_cloudwatch_log_group" "ecs_logs" {
 ##################################
 # ECS Task Definition
 ##################################
+#Fixed errors
 resource "aws_ecs_task_definition" "task" {
   family                   = "strapi-task-ahmad"
   requires_compatibilities = ["FARGATE"]
