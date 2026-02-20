@@ -18,7 +18,8 @@ jobs:
       ECR_REPOSITORY: strapi-ecs-ahmad
       ECS_CLUSTER: strapi-cluster
       ECS_SERVICE: strapi-service
-
+       #Run
+       
     steps:
       # Checkout code
       - name: Checkout code
