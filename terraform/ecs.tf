@@ -25,7 +25,7 @@ resource "aws_security_group" "ecs_sg" {
 # CloudWatch Logs
 ########################################
 resource "aws_cloudwatch_log_group" "ecs_logs" {
-  name              = "/ecs/strapi"
+  name              = "/ecs/strapi/ahmad"
   retention_in_days = 7
 }
 
