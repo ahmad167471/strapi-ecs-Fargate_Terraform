@@ -34,7 +34,6 @@ resource "aws_internet_gateway" "igw" {
   tags   = { Name = "strapi-igw" }
 }
 
-
 ##################################
 # Public Subnets
 ##################################
@@ -77,10 +76,9 @@ resource "aws_route_table_association" "b" {
   route_table_id = aws_route_table.public.id
 }
 
-
 ##################################
-# Data sources for ECS networking
+# ECS Networking Reference
 ##################################
-data "aws_subnets" "public_subnets" {
-  ids = [aws_subnet.public_subnet_a.id, aws_subnet.public_subnet_b.id]
-}
+# You don’t need a data block; just use the subnet resource IDs directly in ECS service:
+# Example:
+# subnets = [aws_subnet.public_a.id, aws_subnet.public_b.id]
