@@ -1,3 +1,10 @@
+resource "aws_ecr_repository" "repo" {
+  name = "strapi-ecs"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
 resource "aws_ecs_task_definition" "strapi" {
   family                   = "strapi-task"
   requires_compatibilities = ["FARGATE"]
