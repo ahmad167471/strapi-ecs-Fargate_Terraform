@@ -1,4 +1,6 @@
+########################################
 # Security Group
+########################################
 resource "aws_security_group" "ecs_sg" {
   name        = "strapi-sg"
   description = "Allow Strapi access"
@@ -19,13 +21,17 @@ resource "aws_security_group" "ecs_sg" {
   }
 }
 
+########################################
 # CloudWatch Logs
+########################################
 resource "aws_cloudwatch_log_group" "ecs_logs" {
   name              = "/ecs/strapi"
   retention_in_days = 7
 }
 
-# Task Definition
+########################################
+# ECS Task Definition
+########################################
 resource "aws_ecs_task_definition" "task" {
   family                   = "strapi-task"
   requires_compatibilities = ["FARGATE"]
@@ -33,7 +39,8 @@ resource "aws_ecs_task_definition" "task" {
   memory                   = "1024"
   network_mode             = "awsvpc"
 
-  execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
+  execution_role_arn = local.ecs_task_execution_role_arn
+  task_role_arn      = local.ecs_task_execution_role_arn
 
   container_definitions = jsonencode([
     {
@@ -44,7 +51,6 @@ resource "aws_ecs_task_definition" "task" {
       portMappings = [
         {
           containerPort = 1337
-          hostPort      = 1337
           protocol      = "tcp"
         }
       ]
@@ -52,14 +58,6 @@ resource "aws_ecs_task_definition" "task" {
       environment = [
         { name = "HOST", value = "0.0.0.0" },
         { name = "PORT", value = "1337" },
-
-        { name = "APP_KEYS", value = "key1,key2,key3,key4" },
-        { name = "API_TOKEN_SALT", value = "salt123" },
-
-        { name = "ADMIN_JWT_SECRET", value = "adminsecret123" },
-        { name = "JWT_SECRET", value = "jwtsecret123" },
-        { name = "ADMIN_AUTH_SECRET", value = "supersecret123" },
-
         { name = "NODE_ENV", value = "production" }
       ]
 
@@ -67,15 +65,17 @@ resource "aws_ecs_task_definition" "task" {
         logDriver = "awslogs"
         options = {
           awslogs-group         = aws_cloudwatch_log_group.ecs_logs.name
-          awslogs-region        = "ap-south-1"
-          awslogs-stream-prefix = "ecs/strapi"
+          awslogs-region        = var.aws_region
+          awslogs-stream-prefix = "ecs"
         }
       }
     }
   ])
 }
 
+########################################
 # ECS Service
+########################################
 resource "aws_ecs_service" "service" {
   name            = "strapi-service"
   cluster         = aws_ecs_cluster.cluster.id
@@ -88,8 +88,4 @@ resource "aws_ecs_service" "service" {
     security_groups  = [aws_security_group.ecs_sg.id]
     assign_public_ip = true
   }
-
-  depends_on = [
-    aws_iam_role_policy_attachment.ecs_execution_policy
-  ]
 }
