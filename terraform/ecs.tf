@@ -60,11 +60,15 @@ resource "aws_ecs_task_definition" "task" {
         }
       ]
 
+        # ← Pass your DB credentials and NODE_ENV here
       environment = [
-        { name = "HOST", value = "0.0.0.0" },
-        { name = "PORT", value = "1337" },
+        { name = "DATABASE_HOST", value = "mydb.example.com" },
+        { name = "DATABASE_PORT", value = "5432" },
+        { name = "DATABASE_USERNAME", value = "strapi_user" },
+        { name = "DATABASE_PASSWORD", value = var.strapi_db_password },
         { name = "NODE_ENV", value = "production" }
       ]
+
     }
   ])
 }
