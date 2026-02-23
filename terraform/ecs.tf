@@ -11,7 +11,7 @@ resource "aws_ecs_cluster" "cluster" {
 resource "aws_security_group" "ecs_sg" {
   name        = "strapi-ecs-sg"
   description = "Allow HTTP for Strapi"
-  vpc_id      = aws_vpc.main.id  # updated to match new VPC
+  vpc_id      = aws_vpc.main.id
 
   ingress {
     description = "Strapi Port"
@@ -34,17 +34,8 @@ resource "aws_security_group" "ecs_sg" {
 }
 
 ##################################
-# CloudWatch Logs
-##################################
-resource "aws_cloudwatch_log_group" "ecs_logs" {
-  name              = "/ecs/strapi/ahmad"
-  retention_in_days = 7
-}
-
-##################################
 # ECS Task Definition
 ##################################
-#Fixed errors
 resource "aws_ecs_task_definition" "task" {
   family                   = "strapi-task-ahmad"
   requires_compatibilities = ["FARGATE"]
@@ -74,15 +65,6 @@ resource "aws_ecs_task_definition" "task" {
         { name = "PORT", value = "1337" },
         { name = "NODE_ENV", value = "production" }
       ]
-
-      logConfiguration = {
-        logDriver = "awslogs"
-        options = {
-          awslogs-group         = aws_cloudwatch_log_group.ecs_logs.name
-          awslogs-region        = var.aws_region
-          awslogs-stream-prefix = "ecs"
-        }
-      }
     }
   ])
 }
@@ -105,8 +87,4 @@ resource "aws_ecs_service" "service" {
     security_groups  = [aws_security_group.ecs_sg.id]
     assign_public_ip = true
   }
-
-  depends_on = [
-    aws_cloudwatch_log_group.ecs_logs
-  ]
 }
