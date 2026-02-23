@@ -9,17 +9,18 @@ permissions:
 
 jobs:
   destroy:
+    name: Terraform Destroy
     runs-on: ubuntu-latest
 
     env:
-      AWS_REGION: us-east-1
+      AWS_REGION: ap-south-1
 
     steps:
-      # Checkout repo
+      # 1️⃣ Checkout Repository
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Configure AWS credentials
+      # 2️⃣ Configure AWS Credentials
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -27,17 +28,21 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      # Setup Terraform
+      # 3️⃣ Setup Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.6.2
 
-      # Terraform Init
+      # 4️⃣ Terraform Init
       - name: Terraform Init
         run: terraform -chdir=terraform init
 
-      # Terraform Destroy
+      # 5️⃣ Terraform Destroy
       - name: Terraform Destroy
-        run: terraform -chdir=terraform destroy -auto-approve
-
+        run: |
+          terraform -chdir=terraform destroy -auto-approve \
+            -var="aws_region=${{ env.AWS_REGION }}" \
+            -var="aws_account_id=${{ secrets.AWS_ACCOUNT_ID }}" \
+            -var="strapi_db_password=${{ secrets.STRAPI_DB_PASSWORD }}" \
+            -var="image_tag=latest"
