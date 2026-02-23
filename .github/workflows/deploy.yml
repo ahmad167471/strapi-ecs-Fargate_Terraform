@@ -15,10 +15,8 @@ jobs:
 
     env:
       AWS_REGION: us-east-1
-      ECR_REPOSITORY: strapi-ecs-ahmad
       ECS_CLUSTER: strapi-cluster
       ECS_SERVICE: strapi-service
-       #Run
        
     steps:
       # Checkout code
@@ -37,22 +35,11 @@ jobs:
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
 
-      # Ensure ECR repository exists
-      - name: Ensure ECR repository exists
-        run: |
-          aws ecr describe-repositories \
-            --repository-names $ECR_REPOSITORY \
-            --region $AWS_REGION || \
-          aws ecr create-repository \
-            --repository-name $ECR_REPOSITORY \
-            --image-scanning-configuration scanOnPush=true \
-            --region $AWS_REGION
-
       # Build & Push Docker Image
       - name: Build and push Docker image
         run: |
           IMAGE_TAG=${GITHUB_SHA}
-          IMAGE_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:${IMAGE_TAG}
+          IMAGE_URI=${{ secrets.ECR_REPO_URL }}:${IMAGE_TAG}
 
           echo "Building image: $IMAGE_URI"
 
@@ -80,4 +67,5 @@ jobs:
             -var="aws_region=${AWS_REGION}" \
             -var="aws_account_id=${{ secrets.AWS_ACCOUNT_ID }}" \
             -var="strapi_db_password=${{ secrets.STRAPI_DB_PASSWORD }}" \
-            -var="image_tag=${GITHUB_SHA}"
+            -var="image_tag=${GITHUB_SHA}" \
+            -var="ecr_repo_url=${{ secrets.ECR_REPO_URL }}"

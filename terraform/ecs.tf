@@ -49,7 +49,7 @@ resource "aws_ecs_task_definition" "task" {
   container_definitions = jsonencode([
     {
       name      = "strapi"
-      image     = "${aws_ecr_repository.repo.repository_url}:${var.image_tag}"
+      image     = "${var.ecr_repo_url}:${var.image_tag}"  # Updated to use variable
       essential = true
 
       portMappings = [
@@ -87,4 +87,8 @@ resource "aws_ecs_service" "service" {
     security_groups  = [aws_security_group.ecs_sg.id]
     assign_public_ip = true
   }
+
+  depends_on = [
+    aws_ecs_task_definition.task
+  ]
 }
