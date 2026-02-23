@@ -49,7 +49,7 @@ resource "aws_ecs_task_definition" "task" {
   container_definitions = jsonencode([
     {
       name      = "strapi"
-      image     = "${var.ecr_repo_url}:${var.image_tag}"  # Updated to use variable
+      image     = "${var.ecr_repo_url}:${var.image_tag}"  # Uses variable now
       essential = true
 
       portMappings = [
@@ -78,6 +78,7 @@ resource "aws_ecs_service" "service" {
   task_definition = aws_ecs_task_definition.task.arn
   launch_type     = "FARGATE"
   desired_count   = 1
+  wait_for_steady_state = false  # Prevent Terraform from hanging
 
   network_configuration {
     subnets          = [
