@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    bucket = "ahmad-tf-state-bucket"
+    bucket = "ahmad-ecs-tf-state-bucket"
     key    = "strapi/terraform.tfstate"
     region = "us-east-1"
   }
